@@ -1,121 +1,109 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useState, useEffect } from 'react'
+import type { FormEvent } from 'react'
+import {listAllPokemon, searchPokemon } from './Api'
+import type { Pokemon } from './Api'
 import './App.css'
 
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+
+
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [query, setQuery] = useState('')
+  const [pokemon, setPokemon] = useState<Pokemon[]>([])
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [allPokemon, setAllPokemon] = useState<Pokemon[]>([])
+
+  useEffect(() => {
+    listAllPokemon().then(setAllPokemon)
+  }, [])
+
+  async function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const trimmedQuery = query.trim()
+
+    if (!trimmedQuery) {
+      setPokemon([])
+      setError('Skriv inn et navn (eller en del av et navn) først.')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const results = await searchPokemon(trimmedQuery)
+      setPokemon(results)
+      if (results.length === 0) {
+        setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`)
+      }
+    } catch (searchError) {
+      setPokemon([])
+      setError(searchError instanceof Error ? searchError.message : 'Noe gikk galt.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <main className="search-page">
+      
+      <section className="search-header">
+        <p className="eyebrow">PokéAPI</p>
+        <h1>Finn en Pokémon</h1>
+        <p>Søk på navn, eller en del av et navn – for eksempel «char» eller «pikachu».</p>
+        <form className="search-form" onSubmit={handleSearch}>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="For eksempel: bulba"
+            aria-label="Søk etter Pokémon"
+          />
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Søker...' : 'Søk'}
+          </button>
+        </form>
       </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
+      <section className="list">
+        <ul>
+          {allPokemon.map((poke) => (
+            <li key={poke.id}>
+              <a> {(poke.id)}</a>
+              <a href={poke.apiUrl} target="_blank" rel="noreferrer">{poke.name}</a>
+              <img src={poke.imageUrl} width={50}></img>
             </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
+          ))}
+        </ul>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <section className="results" aria-live="polite">
+        {error && <p className="message error">{error}</p>}
+        {!error && !isLoading && pokemon.length === 0 && (
+          <p className="message">Søkeresultatene dine vises her.</p>
+        )}
+        {pokemon.map((entry) => (
+          <a className="song" href={entry.apiUrl} target="_blank" rel="noreferrer" key={entry.id}>
+            <img
+              src={entry.imageUrl}
+              alt=""
+              onError={(event) => {
+                event.currentTarget.style.visibility = 'hidden'
+              }}
+            />
+            <span>
+              <strong>{capitalize(entry.name)}</strong>
+              <small>#{entry.id} · se rå API-data</small>
+            </span>
+          </a>
+        ))}
+      </section>
+    </main>
   )
 }
 
