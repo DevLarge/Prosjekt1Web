@@ -13,4 +13,6 @@ export default defineConfig({
     // Greit for et lokalt læringsprosjekt.
     allowedHosts: true,
   },
+
+  base: '/project1',
 })
