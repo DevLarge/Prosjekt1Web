@@ -10,18 +10,13 @@ type PokemonListResponse = {
   results: Array<{ name: string; url: string }>;
 };
 
-// limit=100000 gir oss hele lista i ett kall. PokéAPI har ikke noe
-// eget søke-endepunkt, så vi henter alle navnene én gang og filtrerer selv.
+// PokéAPI har ikke eget søke-endepunkt, så vi henter Pokémon-lista
+// og bruker den til lokal filtrering og søk
 const LIST_ENDPOINT = 'https://pokeapi.co/api/v2/pokemon?limit=10000';
 
-// Vi mellomlagrer lista i minnet så vi ikke henter den på nytt for hvert søk.
-let cachedList: Array<{ name: string; url: string }> | null = null;
-
+// Henter den komplette Pokémon-lista fra PokéAPI
+// Caching av serverdata håndteres av TanStack Query i React-laget
 async function fetchPokemonList() {
-  if (cachedList) {
-    return cachedList;
-  }
-
   const response = await fetch(LIST_ENDPOINT);
 
   if (!response.ok) {
@@ -29,9 +24,7 @@ async function fetchPokemonList() {
   }
 
   const data = (await response.json()) as PokemonListResponse;
-  cachedList = data.results;
-  console.log(cachedList);
-  return cachedList;
+  return data.results;
 }
 
 // i Api.tsx
