@@ -44,7 +44,9 @@
   font: inherit;
   color: var(--text-h);
   background: var(--bg);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .search-form input:focus-visible {
@@ -62,7 +64,9 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s ease, background 0.15s ease;
+  transition:
+    transform 0.1s ease,
+    background 0.15s ease;
 }
 
 .search-form button:hover:not(:disabled) {
@@ -95,7 +99,10 @@
   border: 2px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg-soft);
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .song:hover {
@@ -143,7 +150,9 @@
   line-height: 1;
   color: var(--border);
   cursor: pointer;
-  transition: transform 0.15s ease, color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .favorite-toggle:hover {

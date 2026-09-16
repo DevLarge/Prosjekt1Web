@@ -1,13 +1,13 @@
-import type { Pokemon } from './Api'
+import type { Pokemon } from './Api';
 
 function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1)
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 type FavoritesSidebarProps = {
-  favorites: Pokemon[]
-  onRemove: (pokemon: Pokemon) => void
-}
+  favorites: Pokemon[];
+  onRemove: (pokemon: Pokemon) => void;
+};
 
 // Viser de lagrede favorittene. Selve komponenten er den samme uansett
 // skjermstørrelse - det er CSS-en (.favorites-bar) som gjør den om fra en
@@ -16,11 +16,15 @@ function FavoritesSidebar({ favorites, onRemove }: FavoritesSidebarProps) {
   return (
     <aside className="favorites-bar" aria-label="Favoritt-pokémon">
       <h2 className="favorites-title">
-        Favoritter {favorites.length > 0 && <span className="favorites-count">{favorites.length}</span>}
+        Favoritter{' '}
+        {favorites.length > 0 && (
+          <span className="favorites-count">{favorites.length}</span>
+        )}
       </h2>
       {favorites.length === 0 ? (
         <p className="favorites-empty">
-          Ingen favoritter enda. Trykk på <span aria-hidden="true">★</span> på en Pokémon for å legge den til her.
+          Ingen favoritter enda. Trykk på <span aria-hidden="true">★</span> på
+          en Pokémon for å legge den til her.
         </p>
       ) : (
         <ul className="favorites-list">
@@ -41,7 +45,7 @@ function FavoritesSidebar({ favorites, onRemove }: FavoritesSidebarProps) {
         </ul>
       )}
     </aside>
-  )
+  );
 }
 
-export default FavoritesSidebar
+export default FavoritesSidebar;

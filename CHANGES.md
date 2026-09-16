@@ -9,6 +9,7 @@ visuell make-over av søkesiden, en ny favoritt-funksjon lagret i
 **Hvor:** `src/index.css`, `src/App.css`, `index.html`
 
 **Hva:**
+
 - Byttet fargepalett fra generisk lilla til et Pokéball-inspirert tema:
   rødt (`--accent`) og gult (`--gold`) som aksentfarger, definert som
   CSS-variabler i `:root` (både lys og mørk modus er oppdatert).
@@ -29,7 +30,7 @@ farger og form som minner om selve merkevaren.
 
 **Hvor:** `src/App.tsx`
 
-**Hva:** Fjernet `<section className="list">`-blokken som viste *alle*
+**Hva:** Fjernet `<section className="list">`-blokken som viste _alle_
 Pokémon i en ustylet `<ul>` (rød tekst, sirkel-bullets), samt
 `allPokemon`-state og `useEffect`-kallet som hentet hele listen
 (`listAllPokemon()`) ved oppstart.
@@ -44,6 +45,7 @@ gjennom alle»-visning).
 ## 3. Favoritter (ny funksjon, lagret i `localStorage`)
 
 **Hvor:**
+
 - `src/useFavorites.ts` (ny fil) – egen hook som eier all lagringslogikk.
 - `src/FavoritesSidebar.tsx` (ny fil) – komponenten som viser favorittene.
 - `src/App.tsx` – bruker hooken, viser en ★-knapp på hvert søkeresultat,
@@ -52,6 +54,7 @@ gjennom alle»-visning).
   mobiltilpasning.
 
 **Hva:**
+
 - Brukeren kan trykke på en ★-knapp på et hvilket som helst søkeresultat
   for å legge det til eller fjerne det fra favorittene sine.
 - Favorittene lagres i `localStorage` under nøkkelen `pokedex-favorites`
@@ -65,7 +68,7 @@ gjennom alle»-visning).
     (`@media max-width: 900px`) gjør den om til en fast bunn-bar med
     horisontal scroll, slik at favorittene fortsatt er lett tilgjengelige
     uten å ta opp all skjermplassen på en liten skjerm. Det er altså
-    *ingen* egen mobil-komponent – responsiviteten løses kun med CSS.
+    _ingen_ egen mobil-komponent – responsiviteten løses kun med CSS.
 - Hver favoritt kan fjernes direkte fra sidebaren med en ×-knapp.
 
 **Hvorfor `localStorage`:** Favoritter er noe brukeren typisk vil ha
@@ -86,12 +89,13 @@ Vi har **ikke** implementert dette – bare et forslag til neste steg:
 `sessionStorage` (f.eks. under nøkkelen `pokedex-last-search`).
 
 **Hvorfor dette passer godt til `sessionStorage` og ikke `localStorage`:**
+
 - `sessionStorage` overlever en side-oppdatering (F5), men blir tømt når
   fanen lukkes. Det er akkurat riktig levetid for et søk: nyttig å
   beholde om brukeren ved et uhell laster siden på nytt midt i en
   søkeøkt, men det gir ikke mening at et gammelt søk skal ligge og vente
   neste gang brukeren åpner siden i en ny fane uker senere (i motsetning
-  til favoritter, som *skal* vare).
+  til favoritter, som _skal_ vare).
 - Det er en pedagogisk fin kontrast til favoritt-funksjonen: samme
   mønster (les/skriv til Web Storage), men bevisst forskjellig levetid
   fordi dataene har forskjellig «naturlig» levetid.

@@ -1,45 +1,47 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { searchPokemon } from './Api'
-import type { Pokemon } from './Api'
-import { useFavorites } from './useFavorites'
-import FavoritesSidebar from './FavoritesSidebar'
-import './App.css'
+import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { searchPokemon } from './Api';
+import type { Pokemon } from './Api';
+import { useFavorites } from './useFavorites';
+import FavoritesSidebar from './FavoritesSidebar';
+import './App.css';
 
 function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1)
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 function App() {
-  const [query, setQuery] = useState('')
-  const [pokemon, setPokemon] = useState<Pokemon[]>([])
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const { favorites, isFavorite, toggleFavorite } = useFavorites()
+  const [query, setQuery] = useState('');
+  const [pokemon, setPokemon] = useState<Pokemon[]>([]);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
   async function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const trimmedQuery = query.trim()
+    event.preventDefault();
+    const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
-      setPokemon([])
-      setError('Skriv inn et navn (eller en del av et navn) først.')
-      return
+      setPokemon([]);
+      setError('Skriv inn et navn (eller en del av et navn) først.');
+      return;
     }
 
-    setIsLoading(true)
-    setError('')
+    setIsLoading(true);
+    setError('');
 
     try {
-      const results = await searchPokemon(trimmedQuery)
-      setPokemon(results)
+      const results = await searchPokemon(trimmedQuery);
+      setPokemon(results);
       if (results.length === 0) {
-        setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`)
+        setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`);
       }
     } catch (searchError) {
-      setPokemon([])
-      setError(searchError instanceof Error ? searchError.message : 'Noe gikk galt.')
+      setPokemon([]);
+      setError(
+        searchError instanceof Error ? searchError.message : 'Noe gikk galt.'
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -49,7 +51,10 @@ function App() {
         <section className="search-header">
           <p className="eyebrow">PokéAPI</p>
           <h1>Finn en Pokémon</h1>
-          <p>Søk på navn, eller en del av et navn – for eksempel «char» eller «pikachu».</p>
+          <p>
+            Søk på navn, eller en del av et navn – for eksempel «char» eller
+            «pikachu».
+          </p>
           <form className="search-form" onSubmit={handleSearch}>
             <input
               type="search"
@@ -89,7 +94,7 @@ function App() {
                   src={entry.imageUrl}
                   alt=""
                   onError={(event) => {
-                    event.currentTarget.style.visibility = 'hidden'
+                    event.currentTarget.style.visibility = 'hidden';
                   }}
                 />
                 <span>
@@ -103,7 +108,7 @@ function App() {
       </main>
       <FavoritesSidebar favorites={favorites} onRemove={toggleFavorite} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
