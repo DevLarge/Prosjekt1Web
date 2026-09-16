@@ -1,24 +1,33 @@
-# T18-Project-1
+# Pokedex
 
-Repository for team IT2810-H26-T18 in IT2810-H26.
+## Koble til VM (hosting)
+Hvordan koble til VM:
 
-## Working in this repository
+``` ssh <brukernavn>@it2810-18.idi.ntnu.no ```
 
-`main` is protected — you cannot push to it directly. Work on a branch and
-open a pull request:
 
-```bash
-git checkout -b my-feature
-git push -u origin my-feature
+
+## Nettside:
+<a href="http://it2810-18.idi.ntnu.no/project1/index.html" target="_blank">http://it2810-18.idi.ntnu.no/project1/index.html</a>
+
+Filene ligger i vm under ```/var/www/html/project1```
+
+
+
+## Har du gjort endringer du vil ha på nettsiden live?
+
+```npm run build``` inni prosjekt mappen, deretter flytt filene som er inni ```dist``` mappen til ```/var/www/html/project1```
+
+Da vil de vises på nettsiden. 
+
+
+## Script for å deploye endringer til nettside hosting (OBS OBS, dette er ikke til git, men bare fra VM directory til nettside hosting directory) prosjekt -> /var/www/html/
 ```
-
-Before a pull request can be merged:
-
-1. **A member of IT2810-H26-T18 must approve it.** You cannot approve your own pull
-   request, and approvals from staff do not count — you review each other's
-   code.
-2. **Every review comment must be marked resolved.** Reply to each one, fix it
-   or explain why not, then click *Resolve conversation*.
-3. **Pushing new commits dismisses the approval**, so if you change something
-   after being approved, ask for another review. This is deliberate: what was
-   approved is what gets merged.
+#!/bin/bash
+cd ~/T18-Project-1
+git pull
+npm install
+npm run build
+sudo rsync -av --delete dist/ /var/www/html/project1/
+echo "Deploy ferdig!" 
+```
