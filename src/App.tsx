@@ -84,7 +84,7 @@ function App() {
               >
                 ★
               </button>
-              <a className="song-link" href={entry.apiUrl} target="_blank" rel="noreferrer">
+              <a className="song-link" href={entry.apiUrl} rel="noreferrer">
                 <img
                   src={entry.imageUrl}
                   alt=""
