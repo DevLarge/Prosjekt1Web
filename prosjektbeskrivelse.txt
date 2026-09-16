@@ -1,0 +1,79 @@
+Prosjektbeskrivelse
+Hva du skal lære i dette prosjektet:
+
+Grunnleggende HTML og CSS
+God bruk av HTML-tags med tanke på tilgjengelighetskrav
+Responsiv design (layout som tilpasser seg enheten)
+Grunleggende Typescript og funksjonell programmering
+Grunnleggende React; komponenter med state og props
+Bruk av REST API 
+Bruk av Node og npm (og kompatible pakkeverktøy), prosjektoppsett
+Linting og kodekvalitet
+Utvikling med git, bruk av branching, issues, commits, pull reqests og kode review
+Bruk av KI som assistanse i oppsett, kodegenering, kvalitetskontroll
+Tema for prosjektoppgaven
+
+Overordent tema for denne oppgaven er at dere skal hente ressurser (eller informasjon om noe) med et eksisterende REST API og lage en presentasjon av dette som en bruker kan bla i og gjøre enkelte valg i. Hvilken tjeneste dere henter fra og hva dere henter er opp til dere, men noen forslag kan være:
+
+Værvarsling for de største byene
+Dikt av en spesifikk dikter
+Sangtekster av en artist
+Genererte bilder basert på et sett kriterier etc.
+Informasjon om GitHub repo
+....
+Dette er alle eksempler som det er å google seg frem til åpne og dokumenterte REST API’er for. Hent inn et fornuftig antall ressurser, og det er ikke nødvendig å lage noen avansert løsning for å bestemme utvalget som hentes. Dette kan være hardkodet eller basert på enkle valg som gjøres av en bruker. NB! Prosjektet skal hente data on the fly via REST-apiet, ikke mellomlagre data. 
+
+Oppgaven er laget med tanke på at den skal fungere greit som showcase for funksjonelle og tekniske krav og det er greit å gå for enkle løsninger så lenge det innebærer at dere løser de forskjellige kravene som stilles. Mengde data har vi ikke noe eksplisitt krav til, tilpasses hva som er fornuftig for å teste ut bruk av appen. Typisk vil det være behov for minimum 5-10 ressurser for å få en realistisk utprøving av brukevalg etc.
+
+Siden dette prosjektet handler om å lære grunnleggende React, skal alle komponenter være egenutviklet og ikke benytte tredjepartskomponenter for UI. Vi bruker heller ikke noe annet enn plain CSS. 
+
+Funksjonelle krav
+
+Brukeren skal få presentert en og en ressurs om gangen, men enkel mulighet til å bla seg frem og tilbake, og med mulighet til å hoppe til en spesifikk ressurs (f.eks. ved å velge i en liste).
+En bruker skal kunne gjøre et valg (ala filtrering eller sortering) som påvirker utvalget av det som presenteres og hvordan det presenteres. Disse valgene skal huskes selv om siden reloades.
+En bruker skal kunne velge favoritter ved å for eksempel klikke på en stjerne eller et hjerte. Valg skal huskes selv om nettleser avsluttes og startes igjen.
+Siden skal ha responsivt design og være utformet med tanke på både vanlig desktop skjerm og mobil enhet (tilpasse seg mindre skjerm som kan være både i høyde og breddeformat).
+Siden skal ha en estetisk og ryddig utforming (dette er subjektivt, men vi er ute etter at dere skal ha lagt ned litt arbeid i stiling av siden). 
+Tekniske krav
+
+Løsningen viser god bruk av HTML mtp tilgjengelighetskrav
+Løsningen er basert på Typescript og React
+Viser bruk av React state og props
+Løsningen henter data/informasjon fra et REST API og bruker TanStack Query
+Bruker HTML Web storage api (både localstorage og sessionstorage), alternativt kan dere også bruke IndexedDB API’et. 
+Løsningen har responsivt design
+Utvikling og testing
+
+Bruk av Node.js v24.6.X+ og npm v11.+.
+React prosjekt satt opp med siste versjon av Vite, bruk npm create vite@latest, velg prosjekttypen for React -> Typescript
+Bruk av git og kildekoden på git.ntnu.no,
+bruk av branching og issues for å styre utviklingsoppgaver og lenke commits og merge til issues. 
+Systematisk bruk av pull request og kode review
+Bruk av linting og prettier (ESlint er inkludert når du oppretter prosjekt med Vite, men prettier må du installere)
+Oppsett og komme i gang med testing: 
+Bruk av Vitest
+Vise snapshot test
+Testing av egne komponent (teste på prop og state, brukerinteraksjon).
+Bruk av mocking så testene ikke henter data
+Applikasjonen skal være testet på mainstream weblesere og mobile enheter (selvsagt kun basert på det gruppa har tilgjengelig av enheter)
+Dokumentasjon i form av readme på git som dokumenterer og forklarer valg, dokumenterer hva som er testet
+Levering
+
+Studentene blir meldt inn i en gruppe på GitHub (NTNU), hvor dere skal opprette repo for prosjektet. Bruk navnet "Prosjekt 1". 
+All kode leveres ved at den er tilgjengelig i GitHub (NTNU) repoet. 
+Applikasjonen installert under Apache på gruppas virtuelle maskin
+På Blackboard leverer gruppa et kort notat som beskriver den enkeltes arbeidsinnsats 
+Vurderingskriterier for første innlevering (teller 10% inkl medstudentvurdering)
+
+Løsningen skal svare på alle funksjonelle og tekniske krav, samt det som er beskrevet under utvikling og testing.
+Websiden skal ikke ha åpenbare feil som lett oppdages manuelt ved bruk
+Ingen feilmeldinger eller advarsler ved linting, testing eller kjøring
+Ingen unødvendige kall til REST API’et
+Reproduserbarhet: i praksis betyr det at prosjektet skal være dokumentert og enkelt å installere/kjøre for andre (eksempelvis faglærer). 
+God dokumentasjon som forklarer valg og løsninger, husk å dokumentere bruk av KI
+Vurderingskriterier ved sluttvurdering (teller 5%)
+
+Her vurderer vi sluttresultatet uavhengig av om det er jobbet videre med det eller ikke
+Vesentlige mangler og kritikk til første innlevering må være adressert og løst
+Hvor godt løsning og dokumentasjon viser kunnskap og erfaring
+Dokumentasjonen skal beskrive hva som evt. er forbedret og jobbet med siden første innlevering

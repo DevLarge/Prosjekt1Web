@@ -35,5 +35,3 @@ dist-ssr
 #ETC
 # NB: filnavnet under var tidligere feilstavet ("prosjektbeksrivelse.txt"),
 # som gjorde at filen faktisk IKKE ble ignorert. Rettet til riktig navn.
-prosjektbeskrivelse.txt
-VEIEN-VIDERE.md
