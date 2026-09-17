@@ -7,6 +7,18 @@ import FavoritesSidebar from './FavoritesSidebar';
 import './App.css';
 
 const SEARCH_STORAGE_KEY = 'pokemon-search';
+const RECENT_SEARCHES_STORAGE_KEY = 'pokemon-recent-searches';
+const MAX_RECENT_SEARCHES = 5;
+
+function loadRecentSearches(): string[] {
+  try {
+    const raw = sessionStorage.getItem(RECENT_SEARCHES_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -33,6 +45,8 @@ function App() {
   );
 
   const [error, setError] = useState('');
+  const [recentSearches, setRecentSearches] = useState(loadRecentSearches);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
@@ -44,9 +58,23 @@ function App() {
       .slice(0, 24)
     : [];
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmedQuery = query.trim();
+  function addToRecentSearches(trimmedQuery: string) {
+    const withoutDuplicate = recentSearches.filter(
+      (entry) => entry.toLowerCase() !== trimmedQuery.toLowerCase(),
+    );
+    const updated = [trimmedQuery, ...withoutDuplicate].slice(
+      0,
+      MAX_RECENT_SEARCHES,
+    );
+    setRecentSearches(updated);
+    sessionStorage.setItem(
+      RECENT_SEARCHES_STORAGE_KEY,
+      JSON.stringify(updated),
+    );
+  }
+
+  function runSearch(rawQuery: string) {
+    const trimmedQuery = rawQuery.trim();
 
     if (!trimmedQuery) {
       setSubmittedQuery('');
@@ -57,6 +85,18 @@ function App() {
     sessionStorage.setItem(SEARCH_STORAGE_KEY, trimmedQuery);
     setSubmittedQuery(trimmedQuery);
     setError('');
+    addToRecentSearches(trimmedQuery);
+  }
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    runSearch(query);
+  }
+
+  function handleSelectRecentSearch(recentQuery: string) {
+    setQuery(recentQuery);
+    setShowSuggestions(false);
+    runSearch(recentQuery);
   }
 
   return (
@@ -70,13 +110,32 @@ function App() {
             «pikachu».
           </p>
           <form className="search-form" onSubmit={handleSearch}>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="For eksempel: bulba"
-              aria-label="Søk etter Pokémon"
-            />
+            <div className="search-input-wrapper">
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setShowSuggestions(false)}
+                placeholder="For eksempel: bulba"
+                aria-label="Søk etter Pokémon"
+              />
+              {showSuggestions && recentSearches.length > 0 && (
+                <ul className="recent-searches">
+                  {recentSearches.map((recentQuery) => (
+                    <li key={recentQuery}>
+                      <button
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => handleSelectRecentSearch(recentQuery)}
+                      >
+                        {recentQuery}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <button type="submit" disabled={isPending}>
               {isPending ? 'Laster Pokémon...' : 'Søk'}
             </button>
