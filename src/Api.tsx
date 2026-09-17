@@ -51,20 +51,3 @@ function idFromUrl(url: string): number {
   const match = url.match(/\/pokemon\/(\d+)\//);
   return match ? Number(match[1]) : 0;
 }
-
-export async function searchPokemon(query: string): Promise<Pokemon[]> {
-  const list = await fetchPokemonList();
-  const normalized = query.trim().toLowerCase();
-
-  return list
-    .filter((entry) => entry.name.includes(normalized))
-    .map((entry) => ({ entry, id: idFromUrl(entry.url) }))
-    .filter(({ id }) => id > 0)
-    .slice(0, 24)
-    .map(({ entry, id }) => ({
-      id,
-      name: entry.name,
-      imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-      apiUrl: `https://pokeapi.co/api/v2/pokemon/${id}`,
-    }));
-}

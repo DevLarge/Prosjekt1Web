@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { searchPokemon } from './Api';
+import { useQuery } from '@tanstack/react-query';
+import { listAllPokemon } from './Api';
 import type { Pokemon } from './Api';
 import { useFavorites } from './useFavorites';
 import FavoritesSidebar from './FavoritesSidebar';
@@ -11,12 +12,22 @@ function capitalize(text: string): string {
 }
 function App() {
   const [query, setQuery] = useState('');
+
+  //TanStack Query håndterer henting og caching av Pokémon-lista.
+  const {
+    data: allPokemon = [],
+    isPending,
+    isError,
+    error: queryError,
+  } = useQuery({
+    queryKey: ['pokemon'],
+    queryFn: listAllPokemon,
+  });
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
-  async function handleSearch(event: FormEvent<HTMLFormElement>) {
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedQuery = query.trim();
 
@@ -26,22 +37,18 @@ function App() {
       return;
     }
 
-    setIsLoading(true);
-    setError('');
+    const normalizedQuery = trimmedQuery.toLowerCase();
 
-    try {
-      const results = await searchPokemon(trimmedQuery);
-      setPokemon(results);
-      if (results.length === 0) {
-        setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`);
-      }
-    } catch (searchError) {
-      setPokemon([]);
-      setError(
-        searchError instanceof Error ? searchError.message : 'Noe gikk galt.'
-      );
-    } finally {
-      setIsLoading(false);
+    const results = allPokemon
+      .filter((entry) => entry.name.includes(normalizedQuery))
+      .slice(0, 24);
+
+    setPokemon(results);
+
+    if (results.length === 0) {
+      setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`);
+    } else {
+      setError('');
     }
   }
 
@@ -63,17 +70,27 @@ function App() {
               placeholder="For eksempel: bulba"
               aria-label="Søk etter Pokémon"
             />
-            <button type="submit" disabled={isLoading}>
-              {isLoading ? 'Søker...' : 'Søk'}
+            <button type="submit" disabled={isPending}>
+              {isPending ? 'Laster Pokémon...' : 'Søk'}
             </button>
           </form>
         </section>
 
         <section className="results" aria-live="polite">
-          {error && <p className="message error">{error}</p>}
-          {!error && !isLoading && pokemon.length === 0 && (
+          {isError && (
+            <p className="message error">
+              Kunne ikke hente Pokémon: {queryError.message}
+            </p>
+          )}
+
+          {!isError && error && (
+            <p className="message error">{error}</p>
+          )}
+
+          {!isError && !error && !isPending && pokemon.length === 0 && (
             <p className="message">Søkeresultatene dine vises her.</p>
           )}
+          
           {pokemon.map((entry) => (
             <div className="song" key={entry.id}>
               <button
