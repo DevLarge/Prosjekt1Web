@@ -2,18 +2,22 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { listAllPokemon } from './Api';
-import type { Pokemon } from './Api';
 import { useFavorites } from './useFavorites';
 import FavoritesSidebar from './FavoritesSidebar';
 import './App.css';
 
+const SEARCH_STORAGE_KEY = 'pokemon-search';
+
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
-function App() {
-  const [query, setQuery] = useState('');
 
-  //TanStack Query håndterer henting og caching av Pokémon-lista.
+function App() {
+  const [query, setQuery] = useState(
+    () => sessionStorage.getItem(SEARCH_STORAGE_KEY) ?? '',
+  );
+
+  // TanStack Query håndterer henting og caching av Pokémon-lista.
   const {
     data: allPokemon = [],
     isPending,
@@ -23,33 +27,36 @@ function App() {
     queryKey: ['pokemon'],
     queryFn: listAllPokemon,
   });
-  const [pokemon, setPokemon] = useState<Pokemon[]>([]);
+
+  const [submittedQuery, setSubmittedQuery] = useState(
+    () => sessionStorage.getItem(SEARCH_STORAGE_KEY) ?? '',
+  );
+
   const [error, setError] = useState('');
+
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
+
+  const pokemon = submittedQuery
+    ? allPokemon
+      .filter((entry) =>
+        entry.name.includes(submittedQuery.toLowerCase()),
+      )
+      .slice(0, 24)
+    : [];
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
-      setPokemon([]);
+      setSubmittedQuery('');
       setError('Skriv inn et navn (eller en del av et navn) først.');
       return;
     }
 
-    const normalizedQuery = trimmedQuery.toLowerCase();
-
-    const results = allPokemon
-      .filter((entry) => entry.name.includes(normalizedQuery))
-      .slice(0, 24);
-
-    setPokemon(results);
-
-    if (results.length === 0) {
-      setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`);
-    } else {
-      setError('');
-    }
+    sessionStorage.setItem(SEARCH_STORAGE_KEY, trimmedQuery);
+    setSubmittedQuery(trimmedQuery);
+    setError('');
   }
 
   return (
@@ -87,10 +94,24 @@ function App() {
             <p className="message error">{error}</p>
           )}
 
-          {!isError && !error && !isPending && pokemon.length === 0 && (
-            <p className="message">Søkeresultatene dine vises her.</p>
-          )}
-          
+          {!isError && 
+            !error && 
+            !isPending &&
+            submittedQuery && 
+            pokemon.length === 0 && (
+              <p className="message error">
+                Fant ingen Pokémon som matcher «{submittedQuery}».
+              </p>
+            )}
+
+          {!isError &&
+            !error &&
+            !isPending &&
+            !submittedQuery && (
+              <p className="message">Søkeresultatene dine vises her.</p>
+            )}
+
+
           {pokemon.map((entry) => (
             <div className="song" key={entry.id}>
               <button
