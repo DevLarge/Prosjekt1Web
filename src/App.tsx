@@ -2,18 +2,34 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { listAllPokemon } from './Api';
-import type { Pokemon } from './Api';
 import { useFavorites } from './useFavorites';
 import FavoritesSidebar from './FavoritesSidebar';
 import './App.css';
 
+const SEARCH_STORAGE_KEY = 'pokemon-search';
+const RECENT_SEARCHES_STORAGE_KEY = 'pokemon-recent-searches';
+const MAX_RECENT_SEARCHES = 5;
+
+function loadRecentSearches(): string[] {
+  try {
+    const raw = sessionStorage.getItem(RECENT_SEARCHES_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
-function App() {
-  const [query, setQuery] = useState('');
 
-  //TanStack Query håndterer henting og caching av Pokémon-lista.
+function App() {
+  const [query, setQuery] = useState(
+    () => sessionStorage.getItem(SEARCH_STORAGE_KEY) ?? '',
+  );
+
+  // TanStack Query håndterer henting og caching av Pokémon-lista.
   const {
     data: allPokemon = [],
     isPending,
@@ -23,33 +39,64 @@ function App() {
     queryKey: ['pokemon'],
     queryFn: listAllPokemon,
   });
-  const [pokemon, setPokemon] = useState<Pokemon[]>([]);
+
+  const [submittedQuery, setSubmittedQuery] = useState(
+    () => sessionStorage.getItem(SEARCH_STORAGE_KEY) ?? '',
+  );
+
   const [error, setError] = useState('');
+  const [recentSearches, setRecentSearches] = useState(loadRecentSearches);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmedQuery = query.trim();
+  const pokemon = submittedQuery
+    ? allPokemon
+      .filter((entry) =>
+        entry.name.includes(submittedQuery.toLowerCase()),
+      )
+      .slice(0, 24)
+    : [];
+
+  function addToRecentSearches(trimmedQuery: string) {
+    const withoutDuplicate = recentSearches.filter(
+      (entry) => entry.toLowerCase() !== trimmedQuery.toLowerCase(),
+    );
+    const updated = [trimmedQuery, ...withoutDuplicate].slice(
+      0,
+      MAX_RECENT_SEARCHES,
+    );
+    setRecentSearches(updated);
+    sessionStorage.setItem(
+      RECENT_SEARCHES_STORAGE_KEY,
+      JSON.stringify(updated),
+    );
+  }
+
+  function runSearch(rawQuery: string) {
+    const trimmedQuery = rawQuery.trim();
 
     if (!trimmedQuery) {
-      setPokemon([]);
+      setSubmittedQuery('');
       setError('Skriv inn et navn (eller en del av et navn) først.');
       return;
     }
 
-    const normalizedQuery = trimmedQuery.toLowerCase();
+    sessionStorage.setItem(SEARCH_STORAGE_KEY, trimmedQuery);
+    setSubmittedQuery(trimmedQuery);
+    setError('');
+    addToRecentSearches(trimmedQuery);
+  }
 
-    const results = allPokemon
-      .filter((entry) => entry.name.includes(normalizedQuery))
-      .slice(0, 24);
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    runSearch(query);
+  }
 
-    setPokemon(results);
-
-    if (results.length === 0) {
-      setError(`Fant ingen Pokémon som matcher «${trimmedQuery}».`);
-    } else {
-      setError('');
-    }
+  function handleSelectRecentSearch(recentQuery: string) {
+    setQuery(recentQuery);
+    setShowSuggestions(false);
+    runSearch(recentQuery);
   }
 
   return (
@@ -63,13 +110,32 @@ function App() {
             «pikachu».
           </p>
           <form className="search-form" onSubmit={handleSearch}>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="For eksempel: bulba"
-              aria-label="Søk etter Pokémon"
-            />
+            <div className="search-input-wrapper">
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setShowSuggestions(false)}
+                placeholder="For eksempel: bulba"
+                aria-label="Søk etter Pokémon"
+              />
+              {showSuggestions && recentSearches.length > 0 && (
+                <ul className="recent-searches">
+                  {recentSearches.map((recentQuery) => (
+                    <li key={recentQuery}>
+                      <button
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => handleSelectRecentSearch(recentQuery)}
+                      >
+                        {recentQuery}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <button type="submit" disabled={isPending}>
               {isPending ? 'Laster Pokémon...' : 'Søk'}
             </button>
@@ -87,10 +153,24 @@ function App() {
             <p className="message error">{error}</p>
           )}
 
-          {!isError && !error && !isPending && pokemon.length === 0 && (
-            <p className="message">Søkeresultatene dine vises her.</p>
-          )}
-          
+          {!isError && 
+            !error && 
+            !isPending &&
+            submittedQuery && 
+            pokemon.length === 0 && (
+              <p className="message error">
+                Fant ingen Pokémon som matcher «{submittedQuery}».
+              </p>
+            )}
+
+          {!isError &&
+            !error &&
+            !isPending &&
+            !submittedQuery && (
+              <p className="message">Søkeresultatene dine vises her.</p>
+            )}
+
+
           {pokemon.map((entry) => (
             <div className="song" key={entry.id}>
               <button
